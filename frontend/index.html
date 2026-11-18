@@ -1,0 +1,518 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AquaMonitor | Smart Water Monitoring</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            <span class="brand-icon">💧</span>
+            <div>
+                <strong>AquaMonitor</strong>
+                <small>Smart Water System</small>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <small class="nav-heading">MAIN MENU</small>
+            <button class="nav-item active" data-page="dashboard">🏠 Dashboard</button>
+        </div>
+
+        <div class="nav-group">
+            <small class="nav-heading">MONITORING</small>
+            <button class="nav-item" data-page="monitoring">📡 Real-time Monitoring</button>
+            <button class="nav-item" data-page="stations">📍 Stations</button>
+            <button class="nav-item" data-page="sensors">🔬 Sensors</button>
+        </div>
+
+        <div class="nav-group">
+            <small class="nav-heading">ANALYTICS</small>
+            <button class="nav-item" data-page="analytics">📊 Analytics & Reports</button>
+            <button class="nav-item" data-page="quality">💧 Water Quality Index</button>
+            <button class="nav-item" data-page="consumption">📈 Consumption</button>
+        </div>
+
+        <div class="nav-group">
+            <small class="nav-heading">TESTING & ALERTS</small>
+            <button class="nav-item" data-page="testlab">🧪 Test Lab</button>
+            <button class="nav-item" data-page="alerts">🚨 Alerts</button>
+            <button class="nav-item" data-page="notifications">🔔 Notifications</button>
+        </div>
+
+        <div class="nav-group">
+            <small class="nav-heading">DATA MANAGEMENT</small>
+            <button class="nav-item" data-page="logs">📋 Data Logs</button>
+            <button class="nav-item" data-page="export">📥 Export Data</button>
+            <button class="nav-item" data-page="calibration">⚙️ Calibration</button>
+        </div>
+
+        <div class="nav-group">
+            <small class="nav-heading">SYSTEM</small>
+            <button class="nav-item" data-page="settings">🛠 Settings</button>
+            <button class="nav-item" data-page="system">🖥 System Status</button>
+        </div>
+
+        <div class="sidebar-bottom">
+            <button id="themeToggle" class="theme-button">
+                🌙 Toggle Dark Mode
+            </button>
+            <div class="admin-info">
+                <span>👤</span>
+                <div>
+                    <strong>Arman Saeed</strong>
+                    <small>Administrator</small>
+                </div>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- MAIN AREA -->
+    <main class="main-area">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <div class="topbar-left">
+                <button id="sidebarToggle" class="icon-button">☰</button>
+                <div>
+                    <h4>Smart Water Monitoring System</h4>
+                    <small id="pageSubtitle">Dashboard Overview</small>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <input type="search" id="globalSearch"
+                    placeholder="Search stations...">
+
+                <button class="icon-button" data-goto="notifications">🔔</button>
+
+                <span class="system-live">● System Online</span>
+            </div>
+
+        </header>
+
+        <!-- PAGE CONTENT -->
+        <div class="page-content">
+
+            <!-- DASHBOARD PAGE -->
+            <section class="page active" id="dashboard">
+
+                <div class="page-heading">
+                    <div>
+                        <h2>Dashboard Overview</h2>
+                        <p>Monitor water quality across all stations.</p>
+                    </div>
+                    <button class="primary-btn" onclick="refreshData()">
+                        ↻ Test / Refresh Data
+                    </button>
+                </div>
+
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+                        <span>💧</span>
+                        <p>Total Stations</p>
+                        <h2 id="totalStations">0</h2>
+                        <small>Monitoring locations</small>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>✅</span>
+                        <p>Safe Stations</p>
+                        <h2 id="safeStations">0</h2>
+                        <small>Good readings</small>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>⚠️</span>
+                        <p>Warning Stations</p>
+                        <h2 id="warningStations">0</h2>
+                        <small>Need attention</small>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>🚨</span>
+                        <p>Unsafe Stations</p>
+                        <h2 id="unsafeStations">0</h2>
+                        <small>Require inspection</small>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>📊</span>
+                        <p>Average pH</p>
+                        <h2 id="averagePH">0</h2>
+                        <small>Reference: 6.5–8.5</small>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>🔬</span>
+                        <p>Average TDS</p>
+                        <h2 id="averageTDS">0</h2>
+                        <small>PPM</small>
+                    </div>
+
+                </div>
+
+                <div class="content-grid">
+
+                    <div class="panel">
+                        <h5>Water Quality Distribution</h5>
+                        <canvas id="qualityChart"></canvas>
+                    </div>
+
+                    <div class="panel">
+                        <h5>Station-wise pH Levels</h5>
+                        <canvas id="phChart"></canvas>
+                    </div>
+
+                </div>
+
+                <div class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h5>Station Monitoring Overview</h5>
+                            <small>Latest simulated sensor readings</small>
+                        </div>
+                        <select id="statusFilter">
+                            <option value="All">All Stations</option>
+                            <option value="Safe">Safe</option>
+                            <option value="Warning">Warning</option>
+                            <option value="Unsafe">Unsafe</option>
+                        </select>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Station</th>
+                                    <th>pH</th>
+                                    <th>Turbidity</th>
+                                    <th>TDS</th>
+                                    <th>Temperature</th>
+                                    <th>Status</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="readingsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h5>Recent Alerts</h5>
+                    <div id="dashboardAlerts"></div>
+                </div>
+
+            </section>
+
+            <!-- MONITORING PAGE -->
+            <section class="page" id="monitoring">
+                <div class="page-heading">
+                    <div>
+                        <h2>Real-time Monitoring</h2>
+                        <p>Monitor simulated sensor values.</p>
+                    </div>
+                    <button class="primary-btn" onclick="refreshData()">Refresh Sensors</button>
+                </div>
+
+                <div class="panel">
+                    <h5>Live Sensor Readings</h5>
+                    <div id="liveReadings" class="sensor-grid"></div>
+                </div>
+            </section>
+
+            <!-- STATIONS PAGE -->
+            <section class="page" id="stations">
+                <h2>Monitoring Stations</h2>
+                <p>View and select individual monitoring locations.</p>
+
+                <div class="panel">
+                    <input type="search" id="stationSearch"
+                        placeholder="Search station name...">
+
+                    <div id="stationCards" class="station-grid"></div>
+                </div>
+
+                <div class="panel" id="stationDetails">
+                    Select a station to view its details.
+                </div>
+            </section>
+
+            <!-- SENSORS PAGE -->
+            <section class="page" id="sensors">
+                <h2>Sensor Management</h2>
+                <p>View the different sensor parameters.</p>
+                <div id="sensorDetails" class="sensor-grid"></div>
+            </section>
+
+            <!-- ANALYTICS PAGE -->
+            <section class="page" id="analytics">
+                <h2>Analytics & Reports</h2>
+                <p>Analyze station performance and water readings.</p>
+
+                <div class="content-grid">
+                    <div class="panel">
+                        <h5>pH Analysis</h5>
+                        <canvas id="analyticsPHChart"></canvas>
+                    </div>
+                    <div class="panel">
+                        <h5>TDS Analysis</h5>
+                        <canvas id="tdsChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- QUALITY PAGE -->
+            <section class="page" id="quality">
+                <h2>Water Quality Index</h2>
+                <p>View calculated water quality scores.</p>
+                <div class="panel">
+                    <div id="qualityIndex"></div>
+                </div>
+            </section>
+
+            <!-- CONSUMPTION PAGE -->
+            <section class="page" id="consumption">
+                <h2>Water Consumption</h2>
+                <p>Illustrative water usage analytics.</p>
+                <div class="content-grid">
+                    <div class="panel">
+                        <h5>Daily Consumption</h5>
+                        <canvas id="consumptionChart"></canvas>
+                    </div>
+                    <div class="panel">
+                        <h5>Station Usage</h5>
+                        <div id="consumptionDetails"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TEST LAB PAGE -->
+            <section class="page" id="testlab">
+                <h2>Water Quality Test Lab</h2>
+                <p>Enter your own sensor readings and test water quality.</p>
+
+                <div class="panel">
+                    <h5>Custom Test Case</h5>
+
+                    <form id="testForm">
+                        <div class="test-grid">
+
+                            <div>
+                                <label>Test Name</label>
+                                <input id="testName" value="My Water Test" required>
+                            </div>
+
+                            <div>
+                                <label>pH Level</label>
+                                <input id="testPH" type="number"
+                                    min="0" max="14" step="0.01"
+                                    value="7.2" required>
+                            </div>
+
+                            <div>
+                                <label>Turbidity (NTU)</label>
+                                <input id="testTurbidity" type="number"
+                                    min="0" step="0.01"
+                                    value="2" required>
+                            </div>
+
+                            <div>
+                                <label>TDS (PPM)</label>
+                                <input id="testTDS" type="number"
+                                    min="0" step="1"
+                                    value="300" required>
+                            </div>
+
+                            <div>
+                                <label>Temperature (°C)</label>
+                                <input id="testTemperature" type="number"
+                                    min="-10" max="100" step="0.1"
+                                    value="25" required>
+                            </div>
+
+                        </div>
+
+                        <button class="primary-btn" type="submit">
+                            Run Water Quality Test
+                        </button>
+
+                    </form>
+
+                    <div id="testResult"></div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-heading">
+                        <h5>Sample Test Cases</h5>
+                        <button class="secondary-btn" id="runSampleTests">
+                            Run All Tests
+                        </button>
+                    </div>
+
+                    <div id="sampleTests"></div>
+                </div>
+
+                <div class="panel">
+                    <h5>Test History</h5>
+                    <button class="secondary-btn" id="clearTestHistory">
+                        Clear History
+                    </button>
+                    <div id="testHistory"></div>
+                </div>
+            </section>
+
+            <!-- ALERTS PAGE -->
+            <section class="page" id="alerts">
+                <h2>System Alerts</h2>
+                <p>Review water quality warnings and unsafe readings.</p>
+                <div class="panel" id="allAlerts"></div>
+            </section>
+
+            <!-- NOTIFICATIONS PAGE -->
+            <section class="page" id="notifications">
+                <h2>Notifications</h2>
+                <p>Recent dashboard notifications.</p>
+                <div class="panel" id="notificationList"></div>
+            </section>
+
+            <!-- LOGS PAGE -->
+            <section class="page" id="logs">
+                <h2>Data Logs</h2>
+                <p>View the recorded readings during this session.</p>
+                <div class="panel">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Station</th>
+                                    <th>pH</th>
+                                    <th>TDS</th>
+                                    <th>Turbidity</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- EXPORT PAGE -->
+            <section class="page" id="export">
+                <h2>Export Data</h2>
+                <p>Download simulated monitoring data.</p>
+                <div class="panel">
+                    <h5>Download Reports</h5>
+                    <button class="primary-btn" onclick="exportCSV()">
+                        Download CSV Report
+                    </button>
+                </div>
+            </section>
+
+            <!-- CALIBRATION PAGE -->
+            <section class="page" id="calibration">
+                <h2>Sensor Calibration</h2>
+                <p>Adjust simulated sensor readings for testing.</p>
+                <div class="panel">
+                    <label>pH Adjustment</label>
+                    <input type="range" id="phCalibration"
+                        min="-2" max="2" step="0.1" value="0">
+                    <span id="phCalibrationValue">0</span>
+
+                    <br><br>
+
+                    <label>TDS Adjustment</label>
+                    <input type="range" id="tdsCalibration"
+                        min="-100" max="100" step="5" value="0">
+                    <span id="tdsCalibrationValue">0</span>
+
+                    <br><br>
+
+                    <button class="primary-btn" id="applyCalibration">
+                        Apply Calibration
+                    </button>
+                    <button class="secondary-btn" id="resetCalibration">
+                        Reset
+                    </button>
+                </div>
+            </section>
+
+            <!-- SETTINGS PAGE -->
+            <section class="page" id="settings">
+                <h2>Settings</h2>
+                <p>Manage your dashboard preferences.</p>
+                <div class="panel">
+                    <label>Dashboard Refresh Interval</label>
+                    <select id="refreshInterval">
+                        <option value="0">Manual refresh</option>
+                        <option value="10">10 seconds</option>
+                        <option value="30">30 seconds</option>
+                        <option value="60">60 seconds</option>
+                    </select>
+                    <br><br>
+                    <button class="primary-btn" id="saveSettings">
+                        Save Preferences
+                    </button>
+                </div>
+            </section>
+
+            <!-- SYSTEM PAGE -->
+            <section class="page" id="system">
+                <h2>System Status</h2>
+                <p>Check your application connectivity.</p>
+                <div class="panel" id="systemStatus">
+                    Checking server...
+                </div>
+            </section>
+
+        </div>
+
+        <footer class="footer">
+            AquaMonitor | Smart Water Monitoring System
+            <br>
+            AI Assisted Programming Lab | Version 2.0
+        </footer>
+
+    </main>
+
+</div>
+
+<!-- STATION DETAIL MODAL -->
+<div class="modal fade" id="stationModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Station Details</h5>
+                <button type="button" class="btn-close"
+                    data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="stationModalBody"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
